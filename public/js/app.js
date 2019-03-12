@@ -1,5 +1,6 @@
 //Scrape Articles from national association of realtors
 $("#scrape").on("click", function(req, res){
+    
     $.ajax({
         method: "GET",
         url: "/scrape"
@@ -56,9 +57,11 @@ $(document).on("click", ".unsave", function(){
 
 // Onclick add classes to affect DOM
 $(document).on("click", ".notes", function(){
+    $(".articles1").removeClass("col-12")
     $(".articles1").addClass("col-8")
     $(".notes1").addClass("col-4")
     $("#notes").empty();
+    $("#savedNotes").empty()
 
     let thisId = $(this).attr("data-idn");
     // console.log("thisId" + thisId)
@@ -96,9 +99,11 @@ $(document).on("click", ".savebtn", function(){
     })
     .then(function(data){
         $(".articles1").removeClass("col-8")
+        $(".articles1").addClass("col-12")
         $(".notes1").removeClass("col-4")
+        $(".notes1").addClass("col")
         console.log(data);
-        $("#notes").empty();
+        $(".notes1").empty();
     });
 
     $("#titleInput").val("");

@@ -37,10 +37,8 @@ app.get("/scrape", function (req, res) {
     axios.get("https://magazine.realtor/daily-news").then(function (response) {
         let $ = cheerio.load(response.data);
 
-
         $("article .layout-slat__header h3 ").each(function (i, element) {
             let result = {};
-
             result.title = $(this)
                 .children("a")
                 .text();
@@ -56,14 +54,27 @@ app.get("/scrape", function (req, res) {
                 .text()
             result.url = ("https://magazine.realtor" + result.link)
             // console.log(result)
-
-            db.Article.create(result)
-              .then(function(dbArticle){
-                  console.log(dbArticle)
-              })
-              .catch(function(err){
-                  console.log(err);
-              });
+            db.Article.find({url: result.url}).then(
+                /**
+                 * url = "https:something"
+                 * result.url = "https:something" 
+                 * return ["mathc", "match"]
+                 * 
+                 * result.url = "kdjfak"
+                 * return []
+                 */
+                function(articles) {
+                    if(articles.length <= 0) {
+                        db.Article.create(result)
+                        .then(function(dbArticle){
+                            console.log(dbArticle)
+                        })
+                        .catch(function(err){
+                            console.log(err);
+                        });
+                    }
+                }
+            )
         });
 
         res.send("Scrape Complete")
@@ -106,10 +117,10 @@ app.put("/articles/:id", function(req, res){
     // console.log(req.params.id)
     db.Article.findOne({_id: req.params.id})
     .then(function(data){
-        // console.log(data);
+        console.log(data);
         // console.log(data.saved);
 
-        if (data.saved === "true"){
+        if (data.saved){
             db.Article.findByIdAndUpdate({_id: req.params.id},{saved:false})
             .then(function(dbArticle){
                 res.json(dbArticle);
